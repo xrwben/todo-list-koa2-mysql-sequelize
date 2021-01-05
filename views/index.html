@@ -17,7 +17,7 @@
         <ul>
             <li v-for="item in todoList" :key="item.id">
                 <span @click="changeState(item)">
-                    <input type="checkbox" :checked="item.finish">
+                    <input type="checkbox" :checked="!!item.finish">
                 </span>
                 <p :class="{'finish': item.finish}">{{ item.content }}</p>
                 <i @click="deleteTodo(item)">删除</i>
@@ -81,7 +81,7 @@
                         headers: {
                             'content-type': 'application/json'
                         },
-                        body: JSON.stringify({id: info.id})
+                        body: JSON.stringify({id: info.id, finish: info.finish})
                     }).then(response => {
                         return response.json()
                     }).then(res => {

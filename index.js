@@ -3,15 +3,16 @@ const koaStatic = require("koa-static");
 const koaRouter = require("koa-router")();
 const koaBodyParser = require("koa-bodyparser");
 const path = require("path");
+const mysql = require("./mysql.js");
 
 const app = new Koa();
 
-let datas = [
-    { id: 1, content: "koa", finish: false },
-    { id: 2, content: "ts", finish: false },
-    { id: 3, content: "vue", finish: true }
-];
-let maxId = 3;
+// let datas = [
+//     { id: 1, content: "koa", finish: false },
+//     { id: 2, content: "ts", finish: false },
+//     { id: 3, content: "vue", finish: true }
+// ];
+// let maxId = 3;
 
 app.use(koaStatic(path.resolve(__dirname, './views'), {
     gzip: true,
@@ -21,6 +22,7 @@ app.use(koaStatic(path.resolve(__dirname, './views'), {
 app.use(koaBodyParser())
 
 koaRouter.get("/getTodos", async (ctx) => {
+    const datas = await mysql(`select * from todos_table;`)
     ctx.body = {
         code: 0,
         data: datas,
@@ -38,11 +40,7 @@ koaRouter.post("/addTodo", async (ctx) => {
             msg: '新增内容为空~'
         }
     } else {
-        datas.push({
-            id: ++maxId,
-            content,
-            finish: false
-        })
+        await mysql(`insert into todos_table (content, c_time) values (?, ?)`, [`${content}`, new Date()])
         ctx.body = {
             code: 0,
             data: null,
@@ -52,7 +50,7 @@ koaRouter.post("/addTodo", async (ctx) => {
 })
 
 koaRouter.post("/changeState", async (ctx) => {
-    let id = ctx.request.body.id
+    const { id, finish } = ctx.request.body
     if (!id) {
         ctx.body = {
             code: 1,
@@ -60,16 +58,13 @@ koaRouter.post("/changeState", async (ctx) => {
             msg: '参数ID错误'
         }
     } else {
-        datas.forEach(item => {
-            if (id === item.id) {
-                item.finish = !item.finish
-            }
-            ctx.body = {
-                code: 0,
-                data: null,
-                msg: '修改成功'
-            }
-        });
+        const updateRes = await mysql(`update todos_table set finish=? where id=?`, [finish ? 0 : 1, id])
+        console.log(updateRes)
+        ctx.body = {
+            code: 0,
+            data: null,
+            msg: '修改成功'
+        }
     }
 })
 
@@ -82,9 +77,7 @@ koaRouter.post("/deleteTodo", async (ctx) => {
             msg: '参数ID错误'
         }
     } else {
-        datas = datas.filter(item => {
-            return item.id !== id
-        });
+        await mysql(`delete from todos_table where id=?`, [id])
         ctx.body = {
             code: 0,
             data: null,
@@ -97,4 +90,6 @@ koaRouter.post("/deleteTodo", async (ctx) => {
 app.use(koaRouter.routes());
 app.use(koaRouter.allowedMethods());
 
-app.listen(3000);
+app.listen(5555, () => {
+    console.log('服务正在端口5555运行>>>')
+});
