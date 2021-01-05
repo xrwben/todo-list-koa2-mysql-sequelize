@@ -2,6 +2,14 @@
 
 **基于koa2+vue2的增删改查小demo**
 
+`main分支`：koa2+vue2
+
+`koa_mysql分支`: koa2+vue2+mysql实现数据持久化
+
+`sequelize_koa_mysql分支`：koa2+vue2+mysql+sequelize使用sequelize操作数据库
+
+---
+
 ### 用到的插件
 
 - Koa 是一个基于Node.js平台的下一代web框架
