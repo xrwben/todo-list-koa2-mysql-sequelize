@@ -3,7 +3,8 @@ const koaStatic = require("koa-static");
 const koaRouter = require("koa-router")();
 const koaBodyParser = require("koa-bodyparser");
 const path = require("path");
-const mysql = require("./mysql.js");
+// const mysql = require("./mysql.js");
+const TodosTable = require("./model.js");
 
 const app = new Koa();
 
@@ -22,7 +23,9 @@ app.use(koaStatic(path.resolve(__dirname, './views'), {
 app.use(koaBodyParser())
 
 koaRouter.get("/getTodos", async (ctx) => {
-    const datas = await mysql(`select * from todos_table;`)
+    // const datas = await mysql(`select * from todos_table;`)
+    const datas = await TodosTable.findAll();
+    console.log(datas)
     ctx.body = {
         code: 0,
         data: datas,
@@ -40,7 +43,11 @@ koaRouter.post("/addTodo", async (ctx) => {
             msg: '新增内容为空~'
         }
     } else {
-        await mysql(`insert into todos_table (content, c_time) values (?, ?)`, [`${content}`, new Date()])
+        // await mysql(`insert into todos_table (content, c_time) values (?, ?)`, [`${content}`, new Date()])
+        await TodosTable.create({
+            content: content,
+            c_time: new Date()
+        })
         ctx.body = {
             code: 0,
             data: null,
@@ -58,8 +65,15 @@ koaRouter.post("/changeState", async (ctx) => {
             msg: '参数ID错误'
         }
     } else {
-        const updateRes = await mysql(`update todos_table set finish=? where id=?`, [finish ? 0 : 1, id])
-        console.log(updateRes)
+        // const updateRes = await mysql(`update todos_table set finish=? where id=?`, [finish ? 0 : 1, id])
+        // console.log(updateRes)
+        await TodosTable.update({
+            finish: finish ? 0 : 1
+        }, {
+            where: {
+                id: id
+            }
+        })
         ctx.body = {
             code: 0,
             data: null,
@@ -77,7 +91,12 @@ koaRouter.post("/deleteTodo", async (ctx) => {
             msg: '参数ID错误'
         }
     } else {
-        await mysql(`delete from todos_table where id=?`, [id])
+        // await mysql(`delete from todos_table where id=?`, [id])
+        await TodosTable.destroy({
+            where: {
+                id
+            }
+        })
         ctx.body = {
             code: 0,
             data: null,

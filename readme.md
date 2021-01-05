@@ -1,8 +1,60 @@
 ## TodoList
 
-**基于koa2+vue2的增删改查小demo**
+**基于 koa2+vue2+mysql+sequelize 的增删改查小demo**
+
+### 使用Sequelize操作MySQL
+
+参考：https://sequelize.org/master/
+
+    https://www.sequelize.com.cn/
+
+    https://itbilu.com/nodejs/npm/V1PExztfb.html
+
+**ORM：** Object-Relational Mapping，把关系数据库的表结构映射到对象上
+
+- 增：
+
+```js
+await TodosTable.create({
+    content: content,
+    c_time: new Date()
+})
+```
+
+- 删：
+
+```js
+await TodosTable.destroy({
+    where: {
+        id
+    }
+})
+```
+
+- 改：
+
+```js
+await TodosTable.update({
+    finish: finish ? 0 : 1
+}, {
+    where: {
+        id: id
+    }
+})
+```
+
+- 查：
+
+```js
+await TodosTable.findAll()
+```
+
 
 ### 增加mysql数据持久化
+
+参考：https://www.runoob.com/mysql/mysql-delete-query.html
+
+    https://github.com/mysqljs/mysql#pooling-connections
 
 - cnpm i mysql --save
 
